@@ -5,11 +5,6 @@ import refresh from '../../images/refresh.svg';
 const Controls = ({ changeCounterTime, restartTime }) => (
   <div className="Counter__controls">
     <button
-      onClick={() => changeCounterTime(-10)}
-    >
-      -10 min
-    </button>
-    <button
       onClick={() => changeCounterTime(-5)}
     >
       -5 min
@@ -33,11 +28,6 @@ const Controls = ({ changeCounterTime, restartTime }) => (
       onClick={() => changeCounterTime(5)}
     >
       +5 min
-    </button>
-    <button
-      onClick={() => changeCounterTime(10)}
-    >
-      +10 min
     </button>
   </div>
 );
