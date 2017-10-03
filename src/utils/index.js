@@ -4,7 +4,8 @@ const getTimeLeft = (timerDate, currentDate) => {
   const timeLeft = {
     minutes: Math.floor(datesDiff / 60),
     seconds: datesDiff % 60,
-    progress: 1 - (timerDate.endTime - currentDate) / timerDate.duration
+    progress: 1 - (timerDate.endTime - currentDate) / timerDate.duration,
+    duration: timerDate.duration
   };
 
   return timeLeft;

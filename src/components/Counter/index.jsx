@@ -70,6 +70,7 @@ class Counter extends Component {
         </div>
         <Controls
           changeCounterTime={this.changeCounterTime}
+          duration={timeLeft && timeLeft.duration}
           restartTime={this.restartTime}
         />
       </div>

@@ -2,8 +2,11 @@ import React from 'react';
 
 import refresh from '../../images/refresh.svg';
 
-const Controls = ({ changeCounterTime, restartTime }) => (
+const Controls = ({ changeCounterTime, duration, restartTime }) => (
   <div className="Counter__controls">
+    <div className="Counter__duration">
+      {duration / 60} minutes
+    </div>
     <button
       onClick={() => changeCounterTime(-5)}
     >
