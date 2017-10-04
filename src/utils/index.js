@@ -1,68 +1,37 @@
-const getTimeLeft = (timerDate, currentDate) => {
-  const datesDiff =  timerDate.endTime - currentDate;
-
-  const timeLeft = {
-    minutes: Math.floor(datesDiff / 60),
-    seconds: datesDiff % 60,
-    progress: 1 - (timerDate.endTime - currentDate) / timerDate.duration,
-    duration: timerDate.duration
-  };
-
-  return timeLeft;
-}
-
-export const updateTime = () => {
-  let currentDate = new Date();
-  currentDate = Math.floor(currentDate.getTime() / 1000);
-
+export const getStorageTimes = () => {
   if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
-    let timerDate = JSON.parse(localStorage.getItem('timer_date'));
-
-    if (!timerDate) {
-      const newDate = {
-        endTime: currentDate + 30 * 60,
-        duration: 30 * 60
-      };
-      localStorage.setItem('timer_date', JSON.stringify(newDate));
-      timerDate = newDate;
-    }
-
-    return getTimeLeft(timerDate, currentDate);
+    return JSON.parse(localStorage.getItem('counter_times'));
   }
 
-  return getTimeLeft({ endTime: currentDate, duration: 0 }, currentDate);
+  return null;
 }
 
-export const restartTime = () => {
-  let currentDate = new Date();
-  currentDate = Math.floor(currentDate.getTime() / 1000, 10);
+export const setStorageTimes = (startTime, endTime) => {
+  if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+    const newData = JSON.stringify({
+      startTime,
+      endTime
+    });
 
-  const newDate = {
-    endTime: currentDate + 30 * 60,
-    duration: 30 * 60
-  };
-
-  localStorage.setItem('timer_date', JSON.stringify(newDate));
-
-  return getTimeLeft(newDate, currentDate);
+    localStorage.setItem('counter_times', newData);
+  }
 }
 
-export const changeCounterTime = (minutes) => {
-  let timerDate = JSON.parse(localStorage.getItem('timer_date'));
-  let currentDate = new Date();
-  currentDate = Math.floor(currentDate.getTime() / 1000, 10);
+export const getTimerData = (startTime, endTime, currentTime) => {
+  const datesDiff =  parseInt((endTime - currentTime) / 1000, 10);
+  const duration = endTime - startTime;
+  let finished = false;
 
-  const newTime = timerDate.endTime + minutes * 60;
-  const newDuration = timerDate.duration + minutes * 60;
+  if (endTime < currentTime) {
+    finished = true;
+  }
 
-  const newDate = currentDate <= newTime ? {
-    endTime: newTime,
-    duration: newDuration > 0 ? newDuration : 0
-  } : {
-    endTime: currentDate,
-    duration: 0
+  const timerData = {
+    minutes: finished ? 0 : Math.floor(datesDiff / 60),
+    seconds: finished ? 0 : datesDiff % 60,
+    progress: finished ? 100 : 1 - (endTime - currentTime) / duration,
+    finished
   };
 
-  localStorage.setItem('timer_date', JSON.stringify(newDate));
-  return getTimeLeft(newDate, currentDate);
+  return timerData;
 }

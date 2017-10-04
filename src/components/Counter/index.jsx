@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import Controls from './Controls';
 import CounterTimer from './CounterTimer';
 
-import { changeCounterTime, restartTime, updateTime } from '../../utils';
+import { getStorageTimes, setStorageTimes, getTimerData } from '../../utils';
 
 import background from '../../images/background.png';
 import zilean from '../../images/zilean.png';
@@ -14,39 +14,64 @@ class Counter extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { finished: false, timeLeft: null };
-    this.counterInterval = null;
+    this.state = {
+      currentTime: null,
+      startTime: null,
+      endTime: null,
+      timerData: {
+        minutes: 0,
+        seconds: 0,
+        finished: false,
+        progress: 0
+      }
+    };
+    this.counterTimeout = null;
 
-    this.updateTimeLeft = this.updateTimeLeft.bind(this);
-    this.changeCounterTime = this.changeCounterTime.bind(this);
-    this.restartTime = this.restartTime.bind(this);
+    this.updateCurrentTime = this.updateCurrentTime.bind(this);
+    this.setupTimes = this.setupTimes.bind(this);
   }
   componentWillMount() {
-      this.updateTimeLeft(updateTime());
-      this.counterInterval = setInterval(() => this.updateTimeLeft(updateTime()), 500);
-  }
-  componentWillUnmount() {
-    clearInterval(this.counterInterval);
-  }
-  updateTimeLeft(timeLeft) {
-    if (timeLeft.progress >= 1 || (timeLeft.minutes <= 0 && timeLeft.seconds <= 0)) {
-      clearInterval(this.counterInterval);
-      this.setState({ finished: true, timeLeft: null });
+    let storageTimes = getStorageTimes();
+
+    if (storageTimes) {
+      const { startTime, endTime } = storageTimes;
+      this.setState({ startTime, endTime });
+      this.counterTimeout = setTimeout(() => this.updateCurrentTime(), 500);
     } else {
-      if (this.state.finished) {
-        this.counterInterval = setInterval(() => this.updateTimeLeft(updateTime()), 500);
-      }
-      this.setState({ finished: false, timeLeft });
+      this.setupTimes();
     }
   }
-  changeCounterTime(minutes) {
-    this.updateTimeLeft(changeCounterTime(minutes));
+  updateCurrentTime(minutes = 0) {
+    if (minutes !== 0) {
+      clearTimeout(this.counterTimeout);
+    }
+
+    const currentTime = new Date().getTime();
+    const { startTime, endTime } = this.state;
+    let newEndTime = endTime + minutes * 60 * 1000;
+
+    const timerData = getTimerData(startTime, newEndTime, currentTime);
+
+    if (!timerData.finished) {
+      this.setState({ endTime: newEndTime, currentTime, timerData });
+      this.counterTimeout = setTimeout(() => this.updateCurrentTime(), 500);
+      setStorageTimes(startTime, newEndTime);
+    } else {
+      this.setState({ startTime: currentTime, endTime: currentTime, currentTime, timerData });
+      setStorageTimes(currentTime, currentTime);
+    }
   }
-  restartTime() {
-    this.updateTimeLeft(restartTime());
+  setupTimes() {
+    clearTimeout(this.counterTimeout);
+    const currentTime = new Date().getTime();
+    const startTime = currentTime;
+    const endTime = currentTime + 30 * 60 * 1000;
+    this.setState({ startTime, endTime, currentTime });
+    setStorageTimes(startTime, endTime);
+    this.counterTimeout = setTimeout(() => this.updateCurrentTime(), 500);
   }
   render() {
-    const { finished, timeLeft } = this.state;
+    const { startTime, endTime, currentTime, timerData } = this.state;
 
     return (
       <div className="Counter__wrapper">
@@ -60,18 +85,14 @@ class Counter extends Component {
               Wszystkie miejsca zostały zajęte. Rozstrzygnięcie konkursu za:
             </div>
           </div>
-          <CounterTimer
-            finished={finished}
-            minutes={timeLeft && timeLeft.minutes}
-            progress={timeLeft && timeLeft.progress * 100}
-            seconds={timeLeft && timeLeft.seconds}
-          />
+          <CounterTimer {...timerData} />
           <img src={zilean} className="Counter__character--mobile" alt="" />
         </div>
         <Controls
-          changeCounterTime={this.changeCounterTime}
-          duration={timeLeft && timeLeft.duration}
-          restartTime={this.restartTime}
+          updateCurrentTime={this.updateCurrentTime}
+          currentProgress={(currentTime - startTime) / 1000}
+          duration={(endTime - startTime) / 60000}
+          setupTimes={this.setupTimes}
         />
       </div>
     );
