@@ -35,6 +35,7 @@ body {
     height: 100%;
     width: 100%;
     left: 0;
+    top: 0;
     overflow: hidden;
 
     img {
@@ -50,7 +51,6 @@ body {
 
   &__text {
     color: #CBCBCB;
-    flex: 1 1 60%;
     padding: 1em;
     line-height: 1.4;
     box-sizing: border-box;
@@ -58,6 +58,7 @@ body {
     overflow-wrap: break-word;
     word-wrap: break-word;
     font-family: 'Open Sans', sans-serif;
+    max-width: 100%;
   }
 
   &__character {
@@ -147,9 +148,11 @@ body {
 
   @media screen and (max-width: 660px) {
     align-items: center;
+
     &__content {
       flex-direction: column-reverse;
       align-items: flex-start;
+      max-width: 60%;
     }
 
     &__text {
@@ -160,11 +163,12 @@ body {
     &__timer {
       margin: 0 2em 0 1em;
     }
+
     &__timer {
       position: relative;
       width: 9.5em;
       height: 9.5em;
-      margin: 0 1em;
+      margin: 0 auto;
       flex-shrink: 0;
 
       strong {
@@ -175,14 +179,18 @@ body {
 
   @media screen and (max-width: 375px) {
     &__timer {
-      width: 7.5em;
-      height: 7.5em;
+      width: 7em;
+      height: 7em;
     }
   }
 
   @media screen and (max-width: 320px) {
     flex-direction: column;
     align-items: flex-start;
+
+    &__content {
+      max-width: 100%;
+    }
 
     &__character {
       display: none;
